@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/views/pages/home.dart'; // Ganti dengan nama file home.dart yang sesuai
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -33,9 +34,7 @@ class WelcomePage extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20.0),
-                constraints: BoxConstraints(
-                  minHeight: screenHeight * 0.6
-                  ),
+                constraints: BoxConstraints(minHeight: screenHeight * 0.6),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -46,12 +45,11 @@ class WelcomePage extends StatelessWidget {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset('/images/roll.png', height: 150,),
+                            Image.asset('/images/roll.png', height: 150),
                             Center(
                               child: const Text(
                                 'NALARWIRATAMA',
                                 style: TextStyle(
-                                 
                                   fontSize: 20,
                                   fontWeight: FontWeight.w200,
                                   color: Color(0xFF8B4513),
@@ -95,7 +93,13 @@ class WelcomePage extends StatelessWidget {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigasi ke halaman pendaftaran
+                            // Navigasi ke halaman home
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Home(),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFD2691E),
