@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/views/pages/welcome_page.dart';
 
-
 void main() {
   runApp(const MainApp());
 }
