@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/views/widgets/card_home_ai.dart';
 import 'package:frontend/views/widgets/navbar.dart'; // Adjust the import according to your project structure
+import 'package:frontend/views/widgets/card_home.dart'; // Adjust the import according to your project structure
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -8,31 +10,23 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
       home: Scaffold(
-        
         appBar: AppBar(
           toolbarHeight: 80,
-          flexibleSpace: Container(
-            color: Color(0xFFD3B99A), // Background color
-          ),
-           automaticallyImplyLeading: false, // supaya leading tidak muncul default
-           titleSpacing: 0, // hilangkan spacing bawaan AppBar
-          actions: <Widget>[
-
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-
-              child: CircleAvatar(
-                backgroundImage: AssetImage(
-                  '/images/img_dip.jpg',
-                ), // Replace with your image path
-                radius: 20,
-              ),
+          backgroundColor: Color(0xFFD3B99A),
+          titleSpacing: 0, // hilangkan spacing bawaan AppBar
+          leading: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: CircleAvatar(
+              backgroundImage: AssetImage(
+                '/images/img_dip.jpg',
+              ), // Ganti dengan path gambar Anda
+              radius: 20,
             ),
-            SizedBox(width: 10),
+          ),
+          actions: <Widget>[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
               decoration: BoxDecoration(
                 color: Color(0xFF8B5F3D),
                 borderRadius: BorderRadius.circular(15),
@@ -46,7 +40,6 @@ class Home extends StatelessWidget {
                 color: Color(0xFF8B5F3D),
                 borderRadius: BorderRadius.circular(15),
               ),
-
               child: Row(
                 children: [
                   Icon(Icons.monetization_on, color: Colors.yellow),
@@ -68,7 +61,6 @@ class Home extends StatelessWidget {
             ),
             SizedBox(width: 10),
           ],
-          backgroundColor: Color.fromARGB(207, 199, 134, 60),
         ),
         body: SizedBox(
           height: double.infinity,
@@ -76,12 +68,15 @@ class Home extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Welcome to the Home Page!'),
               Container(
-                alignment: Alignment.bottomCenter,
-                width: double.infinity,
-                height: 70,
-                child: Navbar(), // Navbar widget
+                padding: const EdgeInsets.all(5.0),
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    CardHome(),
+                    CardHomeAi(), // Card widget
+                  ],
+                ),
               ),
               // Add more widgets here as needed
             ],

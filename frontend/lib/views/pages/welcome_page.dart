@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/views/pages/home.dart'; // Ganti dengan nama file home.dart yang sesuai
+import 'package:frontend/views/pages/home.dart';
+import 'package:frontend/views/widget_tree.dart'; // Ganti dengan nama file home.dart yang sesuai
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -94,10 +95,10 @@ class WelcomePage extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             // Navigasi ke halaman home
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const Home(),
+                                builder: (context) => const WidgetTree(),
                               ),
                             );
                           },
