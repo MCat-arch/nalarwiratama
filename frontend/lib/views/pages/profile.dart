@@ -4,6 +4,7 @@ import 'package:frontend/data/user_data.dart';
 
 class ProfilePage extends StatelessWidget {
   final UserProfile user = UserProfile(
+    userId: '12345',
     name: 'John Doe',
     email: 'john.doe@example.com',
     avatarUrl: 'https://example.com/avatar.jpg',

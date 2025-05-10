@@ -6,7 +6,7 @@ import 'package:frontend/views/pages/profile.dart';
 import 'package:frontend/views/pages/story.dart';
 import 'widgets/navbar.dart';
 
-List<Widget> pages = [Home(), Story(), Kitab(), ProfilePage()];
+List<Widget> pages = [Home(), StoryPage(), Kitab(), ProfilePage()];
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
