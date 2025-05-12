@@ -1,58 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/user_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/data/user_data.dart';
+import 'package:frontend/views/pages/auth_page/login_page.dart';
 
-class ProfilePage extends StatelessWidget {
-  final UserProfile user = UserProfile(
-    userId: '12345',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatarUrl: 'https://example.com/avatar.jpg',
-    completedMaterials: 12,
-    totalScore: 1250,
-    rank: 42,
-    joinDate: DateTime(2023, 1, 15),
-  );
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final UserRepository _userRepo = UserRepository();
+
+  Future<UserProfile?> _getUser() async {
+    final userId = await _userRepo.getCurrentUserId();
+    if (userId == null) return null;
+    return _userRepo.getUser(userId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil Saya'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              // Navigasi ke halaman edit profil
-            },
+    return FutureBuilder<UserProfile?>(
+      future: _getUser(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Profil Saya')),
+            body: const Center(child: Text('Gagal memuat profil pengguna')),
+          );
+        }
+
+        final user = snapshot.data!;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Profil Saya'),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  // Navigasi ke halaman edit profil
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Bagian Avatar dan Info Dasar
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-
-            // Bagian Statistik
-            _buildStatisticsSection(),
-            const SizedBox(height: 24),
-
-            // Bagian Pengaturan
-            _buildSettingsSection(),
-          ],
-        ),
-      ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                _buildProfileHeader(user),
+                const SizedBox(height: 24),
+                _buildStatisticsSection(user),
+                const SizedBox(height: 24),
+                _buildSettingsSection(context),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(UserProfile user) {
     return Column(
       children: [
-        // Avatar
         Container(
           width: 120,
           height: 120,
@@ -62,30 +81,25 @@ class ProfilePage extends StatelessWidget {
           ),
           child: CircleAvatar(
             radius: 56,
-            backgroundImage: NetworkImage(user.avatarUrl),
+            backgroundImage:
+                user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
             child:
-                user.avatarUrl.isEmpty
+                user.avatarUrl == null
                     ? const Icon(Icons.person, size: 60)
                     : null,
           ),
         ),
         const SizedBox(height: 16),
-
-        // Nama
         Text(
           user.name,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-
-        // Email
         Text(
           user.email,
           style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
         const SizedBox(height: 8),
-
-        // Tanggal Bergabung
         Text(
           'Bergabung sejak ${DateFormat('MMMM yyyy').format(user.joinDate)}',
           style: TextStyle(
@@ -98,7 +112,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatisticsSection() {
+  Widget _buildStatisticsSection(UserProfile user) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -112,7 +126,6 @@ class ProfilePage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -128,7 +141,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 _buildStatItem(
                   icon: Icons.leaderboard,
-                  value: '#${user.rank}',
+                  value: user.rank != null ? '#${user.rank}' : 'N/A',
                   label: 'Peringkat',
                 ),
               ],
@@ -157,7 +170,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsSection() {
+  Widget _buildSettingsSection(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -193,8 +206,13 @@ class ProfilePage extends StatelessWidget {
               icon: Icons.logout,
               title: 'Keluar',
               color: Colors.red,
-              onTap: () {
-                // Handle logout
+              onTap: () async {
+                await _userRepo.logout();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
               },
             ),
           ],

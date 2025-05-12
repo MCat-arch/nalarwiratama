@@ -18,6 +18,32 @@ class StoryScene {
   });
 
   bool get hasQuestion => question != null;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'sceneId': sceneId,
+      'title': title,
+      'content': content,
+      'type': type.index,
+      'imageAsset': imageAsset,
+      'nextSceneId': nextSceneId,
+      'question': question?.toMap(),
+    };
+  }
+
+  factory StoryScene.fromMap(Map<String, dynamic> map) {
+    return StoryScene(
+      sceneId: map['sceneId'],
+      title: map['title'],
+      content: map['content'],
+      type: SceneType.values[map['type']],
+      imageAsset: map['imageAsset'],
+      nextSceneId: map['nextSceneId'],
+      question: map['question'] != null
+          ? LogicQuestion.fromMap(map['question'])
+          : null,
+    );
+  }
 }
 
 enum SceneType {
@@ -38,4 +64,22 @@ class LogicQuestion {
     required this.correctAnswer,
     required this.explanation,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'questionText': questionText,
+      'proposition': proposition,
+      'correctAnswer': correctAnswer,
+      'explanation': explanation,
+    };
+  }
+
+  factory LogicQuestion.fromMap(Map<String, dynamic> map) {
+    return LogicQuestion(
+      questionText: map['questionText'],
+      proposition: map['proposition'],
+      correctAnswer: map['correctAnswer'],
+      explanation: map['explanation'],
+    );
+  }
 }

@@ -10,7 +10,6 @@ List<Widget> pages = [Home(), StoryPage(), Kitab(), ProfilePage()];
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
-
   @override
   State<WidgetTree> createState() => _WidgetTreeState();
 }

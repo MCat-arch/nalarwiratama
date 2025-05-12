@@ -19,6 +19,33 @@ class GameLevel {
     required this.scenes,
     required this.material,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'levelId': levelId,
+      'levelNumber': levelNumber,
+      'title': title,
+      'description': description,
+      'initialLives': initialLives,
+      'scenes': scenes.map((scene) => scene.toMap()).toList(),
+      'material': material.toMap(),
+    };
+  }
+
+  factory GameLevel.fromMap(Map<String, dynamic> map) {
+    return GameLevel(
+      levelId: map['levelId'],
+      levelNumber: map['levelNumber'],
+      title: map['title'],
+      description: map['description'],
+      initialLives: map['initialLives'],
+      scenes:
+          (map['scenes'] as List)
+              .map((sceneMap) => StoryScene.fromMap(sceneMap))
+              .toList(),
+      material: LearningMaterial.fromMap(map['material']),
+    );
+  }
 }
 
 class LevelProgress {
@@ -31,6 +58,8 @@ class LevelProgress {
   final DateTime? completedAt;
   final Map<String, bool>
   questionAnswers; // Map of questionId to answer (true/false)
+  double progress;
+  GameLevel? gameLevel;
 
   LevelProgress({
     required this.levelId,
@@ -41,6 +70,7 @@ class LevelProgress {
     this.attempts = 0,
     this.completedAt,
     this.questionAnswers = const {},
+    this.progress = 0.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +83,7 @@ class LevelProgress {
       'attempts': attempts,
       'completedAt': completedAt?.toIso8601String(),
       'questionAnswers': questionAnswers,
+      'progress': progress,
     };
   }
 
@@ -69,6 +100,7 @@ class LevelProgress {
               ? DateTime.parse(map['completedAt'])
               : null,
       questionAnswers: Map<String, bool>.from(map['questionAnswers'] ?? {}),
+      progress: (map['progress'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -80,6 +112,7 @@ class LevelProgress {
     int? attempts,
     DateTime? completedAt,
     Map<String, bool>? questionAnswers,
+    double? progress,
   }) {
     return LevelProgress(
       levelId: levelId,
@@ -90,14 +123,17 @@ class LevelProgress {
       attempts: attempts ?? this.attempts,
       completedAt: completedAt ?? this.completedAt,
       questionAnswers: questionAnswers ?? this.questionAnswers,
+      progress: progress ?? this.progress,
     );
   }
 
   LevelProgress addAnswer(String questionId, bool isCorrect) {
+    final newQuestionAnswers = {...questionAnswers, questionId: isCorrect};
     return copyWith(
-      questionAnswers: {...questionAnswers, questionId: isCorrect},
+      questionAnswers: newQuestionAnswers,
       currentLives: isCorrect ? currentLives : currentLives - 1,
       score: isCorrect ? score + 1 : score,
+      progress: _calculateProgress(),
     );
   }
 
@@ -106,14 +142,38 @@ class LevelProgress {
       isCompleted: true,
       completedAt: DateTime.now(),
       attempts: attempts + 1,
+      progress: 100.0,
     );
   }
 
   LevelProgress reset() {
     return LevelProgress(
+      currentLives: gameLevel?.initialLives ?? 5,
+      currentSceneIndex: 0,
+      isCompleted: false,
+      score: 0,
       levelId: levelId,
-      currentLives: currentLives,
       attempts: attempts + 1,
+      completedAt: null,
+      questionAnswers: {},
+      progress: 0.0,
     );
+  }
+
+  double _calculateProgress() {
+    final level = GameLevel(
+      levelId: levelId,
+      levelNumber: 1,
+      title: '',
+      description: '',
+      initialLives: currentLives,
+      scenes: [],
+      material: LearningMaterial(id: '', title: '', description: ''),
+    );
+    if (level.scenes.isNotEmpty) {
+      final totalScenes = level.scenes.length;
+      return (currentSceneIndex / totalScenes) * 100;
+    }
+    return 0.0;
   }
 }

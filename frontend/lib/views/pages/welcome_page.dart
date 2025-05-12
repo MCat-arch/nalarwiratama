@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/views/pages/home.dart';
-import 'package:frontend/views/widget_tree.dart'; // Ganti dengan nama file home.dart yang sesuai
+import 'package:frontend/views/pages/login.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -98,7 +97,7 @@ class WelcomePage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const WidgetTree(),
+                                builder: (context) => const AuthScreen(),
                               ),
                             );
                           },

@@ -1,25 +1,27 @@
 import 'package:frontend/data/level_data.dart';
+
 class UserProfile {
   final String userId;
   final String name;
   final String email;
-  final String avatarUrl;
+  final String? password;
+  final String? avatarUrl;
   final int completedMaterials;
   final int totalScore;
-  final int rank;
+  final int? rank;
   final DateTime joinDate;
   final List<String> achievements;
-  final Map<String, LevelProgress>
-  levelProgress; // Map of levelId to LevelProgress
+  final Map<String, LevelProgress> levelProgress;
 
   UserProfile({
     required this.userId,
     required this.name,
     required this.email,
-    required this.avatarUrl,
+    this.password,
+    this.avatarUrl,
     required this.completedMaterials,
     required this.totalScore,
-    required this.rank,
+    this.rank,
     required this.joinDate,
     this.achievements = const [],
     this.levelProgress = const {},
@@ -29,6 +31,7 @@ class UserProfile {
     String? userId,
     String? name,
     String? email,
+    String? password,
     String? avatarUrl,
     int? completedMaterials,
     int? totalScore,
@@ -41,6 +44,7 @@ class UserProfile {
       userId: userId ?? this.userId,
       name: name ?? this.name,
       email: email ?? this.email,
+      password: password ?? this.password,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       completedMaterials: completedMaterials ?? this.completedMaterials,
       totalScore: totalScore ?? this.totalScore,
@@ -56,6 +60,7 @@ class UserProfile {
       'userId': userId,
       'name': name,
       'email': email,
+      'password': password,
       'avatarUrl': avatarUrl,
       'completedMaterials': completedMaterials,
       'totalScore': totalScore,
@@ -69,39 +74,57 @@ class UserProfile {
   }
 
   UserProfile updateLevelProgress(LevelProgress progress) {
-  return copyWith(
-    levelProgress: {
-      ...levelProgress, // Spread the existing map
-      progress.levelId: progress, // Add or update the entry
-    },
-  );
-}
+    return copyWith(
+      levelProgress: {...levelProgress, progress.levelId: progress},
+    );
+  }
 
-  LevelProgress getLevelProgress(String levelId){
+  LevelProgress getLevelProgress(String levelId) {
     return levelProgress[levelId] ??
-        LevelProgress(levelId:levelId, currentLives:5);
+        LevelProgress(levelId: levelId, currentLives: 5);
   }
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
-    return UserProfile(
-      userId: map['userId'],
-      name: map['name'],
-      email: map['email'],
-      avatarUrl: map['avatarUrl'],
-      completedMaterials: map['completedMaterials'] ?? 0,
-      totalScore: map['totalScore'] ?? 0,
-      rank: map['rank'] ?? 0,
-      joinDate: DateTime.parse(map['joinDate']),
-      achievements: List<String>.from(map['achievements'] ?? []),
-      levelProgress: (map['levelProgress'] as Map<String, dynamic>).map(
-        (key, value) => MapEntry(key, LevelProgress.fromMap(value)),
-      ),
-    );
+    try {
+      print('Deserializing map: $map'); // Debug log
+      return UserProfile(
+        userId: (map['userId'] as String?) ?? '',
+        name: (map['name'] as String?) ?? '',
+        email: (map['email'] as String?) ?? '', // Explicit casting
+        password: map['password'] as String?,
+        avatarUrl: map['avatarUrl'] as String?,
+        completedMaterials: (map['completedMaterials'] as int?) ?? 0,
+        totalScore: (map['totalScore'] as int?) ?? 0,
+        rank: map['rank'] as int?,
+        joinDate: DateTime.parse(map['joinDate']),
+        achievements: List<String>.from(map['achievements'] ?? []),
+        levelProgress:
+            (map['levelProgress'] as Map<String, dynamic>?)?.map(
+              (key, value) => MapEntry(key, LevelProgress.fromMap(value)),
+            ) ??
+            {},
+      );
+    } catch (e) {
+      print('Error in fromMap: $e'); // Log the error
+      return UserProfile(
+        userId: '',
+        name: '',
+        email: '',
+        password: null,
+        avatarUrl: null,
+        completedMaterials: 0,
+        totalScore: 0,
+        rank: null,
+        joinDate: DateTime.now(),
+        achievements: [],
+        levelProgress: {},
+      );
+    }
   }
 
   UserProfile addAchievement(String achievementId) {
     if (achievements.contains(achievementId)) {
-      return this; // Achievement already exists, return the same instance
+      return this;
     }
     return copyWith(achievements: [...achievements, achievementId]);
   }
