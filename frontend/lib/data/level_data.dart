@@ -46,6 +46,26 @@ class GameLevel {
       material: LearningMaterial.fromMap(map['material']),
     );
   }
+
+  GameLevel copyWith({
+    String? levelId,
+    int? levelNumber,
+    String? title,
+    String? description,
+    int? initialLives,
+    List<StoryScene>? scenes,
+    LearningMaterial? material,
+  }) {
+    return GameLevel(
+      levelId: levelId ?? this.levelId,
+      levelNumber: levelNumber ?? this.levelNumber,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      initialLives: initialLives ?? this.initialLives,
+      scenes: scenes ?? this.scenes,
+      material: material ?? this.material,
+    );
+  }
 }
 
 class LevelProgress {
@@ -147,12 +167,11 @@ class LevelProgress {
   }
 
   LevelProgress reset() {
-    return LevelProgress(
-      currentLives: gameLevel?.initialLives ?? 5,
+    return copyWith(
+      currentLives: 5,
       currentSceneIndex: 0,
       isCompleted: false,
       score: 0,
-      levelId: levelId,
       attempts: attempts + 1,
       completedAt: null,
       questionAnswers: {},
@@ -161,17 +180,9 @@ class LevelProgress {
   }
 
   double _calculateProgress() {
-    final level = GameLevel(
-      levelId: levelId,
-      levelNumber: 1,
-      title: '',
-      description: '',
-      initialLives: currentLives,
-      scenes: [],
-      material: LearningMaterial(id: '', title: '', description: ''),
-    );
-    if (level.scenes.isNotEmpty) {
-      final totalScenes = level.scenes.length;
+    
+    final totalScenes = 10;
+    if (totalScenes > 0) {
       return (currentSceneIndex / totalScenes) * 100;
     }
     return 0.0;

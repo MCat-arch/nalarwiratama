@@ -1,128 +1,51 @@
+// lib/views/pages/story_page.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/data/story_data.dart';
-import 'package:frontend/views/widgets/story/answer_feedback.dart';
-import 'package:frontend/views/widgets/story/story_content.dart';
-import 'package:frontend/views/widgets/story/logic_question.dart' as logic;
+import 'package:frontend/data/user_data.dart';
+import 'package:frontend/services/story_service.dart';
+import 'package:frontend/views/widgets/story/card_story.dart';
 
-class StoryPage extends StatefulWidget {
-  const StoryPage({super.key});
+class StoryPage extends StatelessWidget {
+  final String storyPath;
+  final UserProfile user;
+  final String materialTitle;
 
-  @override
-  State<StoryPage> createState() => _StoryPageState();
-}
-
-class _StoryPageState extends State<StoryPage> {
-  final List<StoryScene> scenes = [
-    StoryScene(
-      sceneId: 'scene1',
-      title: 'Latar Belakang Peperangan',
-      content:
-          'Tindakan sewenang-wenang pihak Belanda telah menyulut emosi Pangeran Diponegoro. '
-          'Dia bertekad untuk menjaga warisan leluhur dan secara terbuka menantang Pasukan Belanda.',
-      question: LogicQuestion(
-        questionText: 'Tentukan apakah klaim berikut bernilai benar atau salah',
-        proposition:
-            'Jika pasukan Belanda merusak makam leluhur atau Pangeran Diponegoro mau '
-            'bekerjasama maka perang terjadi',
-        correctAnswer: true,
-        explanation:
-            'Klaim bernilai BENAR karena perang akan terjadi jika salah satu dari dua '
-            'kondisi tersebut terpenuhi (merusak makam ATAU bekerjasama).',
-      ),
-      imageAsset: 'assets/images/img_dip.jpg',
-      nextSceneId: 'scene2',
-    ),
-    // Tambahkan scene-scene berikutnya di sini
-  ];
-
-  String currentSceneId = 'scene1';
-  bool? userAnswer;
-  bool showFeedback = false;
-
-  StoryScene get currentScene =>
-      scenes.firstWhere((s) => s.sceneId == currentSceneId);
+  const StoryPage({super.key, required this.storyPath, required this.user, required this.materialTitle});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Perang Diponegoro'), centerTitle: true),
-      body: Stack(
-        children: [
-          // Background Image full screen
-          if (currentScene.imageAsset != null)
-            Positioned.fill(
-              child: Image.asset(currentScene.imageAsset!, fit: BoxFit.cover),
-            ),
+      body: FutureBuilder<StoryData>(
+        future: StoryService().loadStoryData(storyPath),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData) {
+            return Center(child: Text('Data unavailable'));
+          }
 
-          // Overlay + Konten
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(
-                0.4,
-              ), // optional: biar teks lebih terbaca
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Konten Cerita
-                      StoryContent(
-                        title: currentScene.title,
-                        content: currentScene.content,
-                      ),
-                      const SizedBox(height: 20),
+          void onCompleted() {
+            // Handle story completion
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Cerita selesai!')));
+            Navigator.pop(context);
+          }
 
-                      // Soal logika
-                      if (currentScene.question != null) ...[
-                        const Divider(thickness: 2, color: Colors.white),
-                        logic.LogicQuestionWidget(
-                          question: currentScene.question!,
-                          onAnswerSelected: (answer) {
-                            setState(() {
-                              userAnswer = answer;
-                              showFeedback = true;
-                            });
-                          },
-                        ),
-                      ],
+          ;
 
-                      // Feedback
-                      if (showFeedback && currentScene.question != null)
-                        AnswerFeedback(
-                          isCorrect:
-                              userAnswer ==
-                              currentScene.question!.correctAnswer,
-                          explanation: currentScene.question!.explanation,
-                        ),
-
-                      const SizedBox(height: 20),
-
-                      // Tombol Lanjut
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            currentSceneId = currentScene.nextSceneId;
-                            userAnswer = null;
-                            showFeedback = false;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[800],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                        ),
-                        child: const Text('Lanjutkan Cerita'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+          return StoryCard(
+            storyData: snapshot.data!,
+            materialTitle: materialTitle,
+            user: user,
+            onCompleted: onCompleted,
+            onHomePressed: () => Navigator.pop(context),
+          );
+        },
       ),
     );
   }

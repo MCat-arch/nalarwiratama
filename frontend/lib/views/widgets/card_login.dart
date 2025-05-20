@@ -6,8 +6,8 @@ class CardLogin extends StatelessWidget {
   final TextEditingController password;
   final VoidCallback onSwitchToSignIn;
   // Terima state rememberMe dari induk
-  // final ValueChanged<bool>
-  // onRememberMeChanged; // Callback untuk perubahan rememberMe
+  final ValueChanged<bool> onRememberMeChanged;
+  final bool rememberMeValue; // Callback untuk perubahan rememberMe
 
   const CardLogin({
     super.key,
@@ -15,7 +15,8 @@ class CardLogin extends StatelessWidget {
     required this.name,
     required this.password,
     required this.onSwitchToSignIn,
-    // required this.onRememberMeChanged,
+    required this.onRememberMeChanged,
+    required this.rememberMeValue,
   });
 
   @override
@@ -43,11 +44,33 @@ class CardLogin extends StatelessWidget {
               controller: name,
               decoration: InputDecoration(
                 labelText: 'Username',
+                labelStyle: const TextStyle(
+                  color: Color.fromARGB(255, 205, 204, 185),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: const Color.fromARGB(245, 255, 246, 205),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(245, 190, 161, 33),
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(245, 190, 161, 33),
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 165, 235, 167),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -55,15 +78,37 @@ class CardLogin extends StatelessWidget {
 
             // Input Password
             TextField(
-              obscureText: true,
               controller: password,
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
+                labelStyle: const TextStyle(
+                  color: Color.fromARGB(255, 205, 204, 185),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: const Color.fromARGB(245, 255, 246, 205),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(245, 190, 161, 33),
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(245, 190, 161, 33),
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 165, 235, 167),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -76,20 +121,13 @@ class CardLogin extends StatelessWidget {
                 Row(
                   children: [
                     Checkbox(
-                      value: false,
+                      value: rememberMeValue,
                       onChanged: (value) {
-                        // onRememberMeChanged(value!);
+                        onRememberMeChanged(value!);
                       },
                     ),
                     const Text('Remember Me'),
                   ],
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'FORGOT PASSWORD?',
-                    style: TextStyle(color: Colors.blue),
-                  ),
                 ),
               ],
             ),
@@ -121,8 +159,8 @@ class CardLogin extends StatelessWidget {
             TextButton(
               onPressed: onSwitchToSignIn, // Perbaiki pemanggilan callback
               child: const Text(
-                'ALREADY HAVE AN ACCOUNT? SIGN IN',
-                style: TextStyle(color: Colors.blue),
+                'Belum Memiliki Akun? Daftar',
+                style: TextStyle(color: Color.fromARGB(255, 222, 187, 31)),
               ),
             ),
           ],

@@ -12,6 +12,8 @@ class UserProfile {
   final DateTime joinDate;
   final List<String> achievements;
   final Map<String, LevelProgress> levelProgress;
+  final List<GameLevel> levels;
+  final String? activeMaterialId;
 
   UserProfile({
     required this.userId,
@@ -25,6 +27,8 @@ class UserProfile {
     required this.joinDate,
     this.achievements = const [],
     this.levelProgress = const {},
+    this.levels = const [],
+    this.activeMaterialId,
   });
 
   UserProfile copyWith({
@@ -39,6 +43,8 @@ class UserProfile {
     DateTime? joinDate,
     List<String>? achievements,
     Map<String, LevelProgress>? levelProgress,
+    List<GameLevel>? levels,
+    String? activeMaterialId,
   }) {
     return UserProfile(
       userId: userId ?? this.userId,
@@ -52,6 +58,8 @@ class UserProfile {
       joinDate: joinDate ?? this.joinDate,
       achievements: achievements ?? this.achievements,
       levelProgress: levelProgress ?? this.levelProgress,
+      levels: levels ?? this.levels,
+      activeMaterialId: activeMaterialId ?? this.activeMaterialId,
     );
   }
 
@@ -70,14 +78,36 @@ class UserProfile {
       'levelProgress': levelProgress.map(
         (key, value) => MapEntry(key, value.toMap()),
       ),
+      'activeMaterialId': activeMaterialId,
     };
   }
 
   UserProfile updateLevelProgress(LevelProgress progress) {
     return copyWith(
       levelProgress: {...levelProgress, progress.levelId: progress},
+      completedMaterials:
+          levelProgress.values.where((lp) => lp.isCompleted).length,
     );
   }
+
+  UserProfile syncMaterialsProgress() {
+    final updateLevels =
+        levels.map((level) {
+          final progress =
+              levelProgress[level.levelId] ??
+              LevelProgress(
+                levelId: level.levelId,
+                currentLives: level.initialLives,
+              );
+
+          return level.copyWith(
+            material: level.material.updateProgress(progress, level),
+          );
+        }).toList();
+    return copyWith(levels: updateLevels);
+  }
+
+  
 
   LevelProgress getLevelProgress(String levelId) {
     return levelProgress[levelId] ??
@@ -103,6 +133,11 @@ class UserProfile {
               (key, value) => MapEntry(key, LevelProgress.fromMap(value)),
             ) ??
             {},
+        levels:
+            (map['levels'] as List?)
+                ?.map((levelMap) => GameLevel.fromMap(levelMap))
+                .toList() ??
+            [],
       );
     } catch (e) {
       print('Error in fromMap: $e'); // Log the error

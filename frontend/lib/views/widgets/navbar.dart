@@ -34,10 +34,10 @@ class Navbar extends StatelessWidget {
             backgroundColor: Colors.transparent,
             destinations: [
               NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-              NavigationDestination(
-                icon: Icon(Icons.apple_rounded),
-                label: 'Story',
-              ),
+              // NavigationDestination(
+              //   icon: Icon(Icons.apple_rounded),
+              //   label: 'Story',
+              // ),
               NavigationDestination(icon: Icon(Icons.book), label: 'Book'),
               NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
             ],

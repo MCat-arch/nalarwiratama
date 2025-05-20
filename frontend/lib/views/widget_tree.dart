@@ -6,17 +6,25 @@ import 'package:frontend/views/pages/profile.dart';
 import 'package:frontend/views/pages/story.dart';
 import 'widgets/navbar.dart';
 
-List<Widget> pages = [Home(), StoryPage(), Kitab(), ProfilePage()];
+List<Widget> pages = [
+  Home(),
+  // StoryPage(),
+  Kitab(),
+  ProfilePage(),
+];
 
 class WidgetTree extends StatefulWidget {
+
   const WidgetTree({super.key});
   @override
   State<WidgetTree> createState() => _WidgetTreeState();
 }
 
 class _WidgetTreeState extends State<WidgetTree> {
+  
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       // appBar: AppBar(title: const Text('Nalarwiratama'), centerTitle: true),
       body: ValueListenableBuilder(

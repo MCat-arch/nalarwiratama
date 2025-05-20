@@ -1,0 +1,53 @@
+{
+  "materials": [
+    {
+      "id": "1",
+      "title": "PENGANTAR LOGIKA MATEMATIKA",
+      "description": "Pahami konsep dasar logika matematika sebagai landasan berpikir rasional",
+      "assetPath": "assets/material/level1.json",
+      "imageUrl": "assets/images/logic.jpg"
+    },
+    {
+      "id": "2",
+      "title": "PERNYATAAN DAN JENISNYA",
+      "description": "Pelajari perbedaan antara pernyataan tunggal dan majemuk",
+      "assetPath": "assets/material/level2.json",
+      "imageUrl": "assets/images/statement.jpg"
+    },
+    {
+      "id": "3",
+      "title": "INGKARAN (NEGASI)",
+      "description": "Ketahui cara membentuk ingkaran dari suatu pernyataan",
+      "assetPath": "assets/material/level3.json",
+      "imageUrl": "assets/images/negation.jpg"
+    },
+    {
+      "id": "4",
+      "title": "KONJUNGSI DAN DISJUNGSI",
+      "description": "Pelajari operasi logika 'dan' serta 'atau'",
+      "assetPath": "assets/material/level4.json",
+      "imageUrl": "assets/images/conjunction.jpg"
+    },
+    {
+      "id": "5",
+      "title": "IMPLIKASI DAN EKUIYALENSI",
+      "description": "Pahami implikasi dan ekuiyalensi dalam logika",
+      "assetPath": "assets/material/level5.json",
+      "imageUrl": "assets/images/implication.jpg"
+    },
+    {
+      "id": "6",
+      "title": "TABEL KEBENARAN",
+      "description": "Buat dan analisis tabel kebenaran untuk pernyataan",
+      "assetPath": "assets/material/level6.json",
+      "imageUrl": "assets/images/truth_table.jpg"
+    },
+    {
+      "id": "7",
+      "title": "ARGUMEN DAN VALIDITAS",
+      "description": "Ketahui cara mengevaluasi validitas argumen",
+      "assetPath": "assets/material/level7.json",
+      "imageUrl": "assets/images/argument.jpg"
+    }
+  ]
+}

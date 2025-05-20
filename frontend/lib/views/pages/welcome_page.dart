@@ -109,7 +109,7 @@ class WelcomePage extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            'DAFTAR SEKARANG',
+                            'MULAI SEKARANG',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -119,15 +119,15 @@ class WelcomePage extends StatelessWidget {
                       ),
 
                       // Teks Login
-                      TextButton(
-                        onPressed: () {
-                          // Navigasi ke halaman login
-                        },
-                        child: const Text(
-                          'SUDAH MEMILIKI AKUN? MASUK',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
-                      ),
+                      // TextButton(
+                      //   onPressed: () {
+                      //     // Navigasi ke halaman login
+                      //   },
+                      //   child: const Text(
+                      //     'SUDAH MEMILIKI AKUN? MASUK',
+                      //     style: TextStyle(fontSize: 14, color: Colors.grey),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

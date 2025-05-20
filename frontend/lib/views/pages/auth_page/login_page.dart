@@ -3,6 +3,7 @@ import 'package:frontend/services/user_repository.dart';
 import 'package:frontend/views/widget_tree.dart';
 import 'package:frontend/views/pages/auth_page/signin_page.dart';
 import 'package:frontend/views/widgets/card_login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final UserRepository _userRepo = UserRepository();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _rememberMe = false;
 
   // @override
   // void dispose() {
@@ -22,6 +24,26 @@ class _LoginPageState extends State<LoginPage> {
   //   _passwordController.dispose();
   //   super.dispose();
   // }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberMePreference().then((value) {
+      setState(() {
+        _rememberMe = value;
+      });
+    });
+  }
+
+  Future<void> saveRememberMePreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('remember_me', value);
+  }
+
+  Future<bool> _loadRememberMePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('remember_me') ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +57,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           CardLogin(
+            rememberMeValue: _rememberMe,
+            onRememberMeChanged: (value) {
+              setState(() {
+                _rememberMe = value; // Perbarui state Remember Me
+              });
+              print('Remember Me: $_rememberMe'); // Debugging log
+            },
             name: _nameController,
             password: _passwordController,
             onLogin: () async {

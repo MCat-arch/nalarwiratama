@@ -16,82 +16,153 @@ class _CardHomeAiState extends State<CardHomeAi> {
     if (userInput.isNotEmpty) {
       // Simulate sending the message to the AI assistant
       print('User: $userInput');
-      _textController.clear(); // Clear the text field after sending
+      _textController.clear();
+      FocusScope.of(context).unfocus(); // Sembunyikan keyboard setelah mengirim
     } else {
-      // Show a message if the input is empty
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please enter a message')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Masukkan pertanyaan Anda'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      color: const Color.fromARGB(255, 248, 248, 248),
+    return Container(
+      // Hapus properti color
+      decoration: BoxDecoration(
+        color: Colors.white60, // Pindahkan warna ke dalam BoxDecoration
+        borderRadius: BorderRadius.circular(12), // Tambahkan border radius
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black26, // Warna bayangan
+        //     blurRadius: 4, // Tingkat blur bayangan
+        //     offset: Offset(0, 2), // Posisi bayangan
+        //   ),
+        // ],
+      ),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header dengan avatar dan judul
             Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage(
-                    '/images/img_dip.jpg',
-                  ), // Ganti dengan path gambar Anda
-                  radius: 20,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF8B5F3D).withOpacity(0.1),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome,
+                    color: Color(0xFF8B5F3D),
+                    size: 20,
+                  ),
                 ),
-                SizedBox(width: 10),
-                Text(
-                  'AI Assistant',
+                const SizedBox(width: 12),
+                const Text(
+                  'Asisten AI',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 16, 16, 16),
+                    fontFamily: 'Quicksand',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 10, width: double.infinity),
+
+            const SizedBox(height: 12),
+
+            // Deskripsi
             Text(
-              'Need help? I can explain the logical concepts in the book, provide examples, and even help you with exercises.',
+              'Butuh bantuan? Saya bisa menjelaskan konsep logika dalam buku, memberikan contoh, dan membantu Anda dengan latihan.',
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-                color: const Color.fromARGB(255, 16, 16, 16),
+                fontFamily: 'Quicksand',
+                fontSize: 14,
+                color: Colors.grey[600],
+                height: 1.4,
               ),
             ),
-            SizedBox(height: 10, width: double.infinity),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      hintText: 'Ask me anything',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: Colors.grey),
+
+            const SizedBox(height: 16),
+
+            // Input area
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 14,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Tanyakan sesuatu...',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Quicksand',
+                          color: Colors.grey[400],
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _sendMessage(),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      onPressed: _sendMessage,
+                      icon: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF8B5F3D),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.send,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: Icon(Icons.send, color: Colors.blue),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 }

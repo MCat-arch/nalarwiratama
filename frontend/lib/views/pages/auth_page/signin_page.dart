@@ -27,72 +27,95 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image(
-                  image: Image.asset('/images/signin.png').image,
-                  fit: BoxFit.cover,
+      body: Container(
+        height: double.maxFinite,
+        width: double.maxFinite,
+        color: const Color.fromARGB(132, 235, 231, 200),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                SizedBox(height: 40),
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                      'Sign In',
+                      style: const TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              CardSignIn(
-                name: _nameController,
-                email: _emailController,
-                password: _passwordController,
-                onSignIn: () async {
-                  if (_nameController.text.isEmpty ||
-                      _emailController.text.isEmpty ||
-                      _passwordController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please fill in all fields'),
-                        backgroundColor: Colors.red,
-                      ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Image(
+                    image: Image.asset('/images/signin.png').image,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30),
+                CardSignIn(
+                  name: _nameController,
+                  email: _emailController,
+                  password: _passwordController,
+                  onSignIn: () async {
+                    if (_nameController.text.isEmpty ||
+                        _emailController.text.isEmpty ||
+                        _passwordController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please fill in all fields'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    final success = await _userRepo.signIn(
+                      _emailController.text,
+                      _passwordController.text,
+                      _nameController.text,
                     );
-                    return;
-                  }
-                  final success = await _userRepo.signIn(
-                    _emailController.text,
-                    _passwordController.text,
-                    _nameController.text,
-                  );
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Sign in successful!'),
-                        backgroundColor: Colors.green,
-                      ),
-                      // _userRepo.saveUser(success)
-                    );
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sign in successful!'),
+                          backgroundColor: Colors.green,
+                        ),
+                        // _userRepo.saveUser(success)
+                      );
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Sign in failed. User may already exist.',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  onSwitchToLogIn: () {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const LoginPage(),
                       ),
                     );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Sign in failed. User may already exist.',
-                        ),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                onSwitchToLogIn: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
