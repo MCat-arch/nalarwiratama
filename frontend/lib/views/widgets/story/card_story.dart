@@ -83,12 +83,16 @@ class _StoryCardState extends State<StoryCard> {
     final currentScene = widget.storyData.scenes[_currentSceneIndex];
 
     return Scaffold(
+      
       extendBodyBehindAppBar: true,
       appBar: StoryAppBar(
         user: widget.user,
         materialTitle: widget.materialTitle,
+        totalMaterials: 10,
         onHomePressed: widget.onHomePressed,
         onHintPressed: currentScene.question != null ? _showHint : null,
+        currentLives: 3,
+        maxLives: 5,
       ),
       body: Stack(
         children: [
