@@ -7,7 +7,7 @@ class LearningMaterial {
   final String id;
   final String title;
   final String description;
-  final bool isCompleted;
+  bool isCompleted;
   final int? score;
   final String? imageUrl;
   double progress;
@@ -62,11 +62,12 @@ class LearningMaterial {
 
   LearningMaterial updateProgress(
     LevelProgress levelProgress,
-    GameLevel level,
+    List<StoryScene> levelScenes,
+  
   ) {
-    if (level.material.id == id && level.scenes.isNotEmpty) {
-      final totalScenes = level.scenes.length;
-      final currentScene = levelProgress.currentSceneIndex;
+    if (levelScenes.isNotEmpty) {
+      final totalScenes = levelScenes.length;
+      final currentScene = levelProgress.currentSceneIndex + 1;
       final newProgress = (currentScene / totalScenes) * 100;
       return LearningMaterial(
         id: id,

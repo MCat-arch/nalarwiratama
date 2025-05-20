@@ -101,7 +101,7 @@ class UserProfile {
               );
 
           return level.copyWith(
-            material: level.material.updateProgress(progress, level),
+            material: level.material.updateProgress(progress, level.scenes),
           );
         }).toList();
     return copyWith(levels: updateLevels);

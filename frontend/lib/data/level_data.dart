@@ -187,4 +187,12 @@ class LevelProgress {
     }
     return 0.0;
   }
+
+  void updateProgress() {
+  final totalScenes = gameLevel?.scenes.length ?? 1;
+  final completedScenes = currentSceneIndex;
+  progress = (completedScenes / totalScenes).clamp(0.0, 1.0);
+  print('Progress updated: $progress ($completedScenes / $totalScenes)');
+}
+
 }

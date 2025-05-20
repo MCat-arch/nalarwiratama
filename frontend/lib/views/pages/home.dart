@@ -7,6 +7,7 @@ import 'package:frontend/views/widgets/card_home_ai.dart';
 import 'package:frontend/views/widgets/card_home.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:frontend/data/level_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -30,7 +31,7 @@ class _HomeState extends State<Home> {
       // Muat user profile
       final userId = await _userRepo.getCurrentUserId();
       if (userId == null) throw Exception('No current user ID found');
-      final user = await _userRepo.getUser(userId);
+      UserProfile? user = await _userRepo.getUser(userId);
       if (user == null) throw Exception('User not found');
 
       // Muat daftar materi dari JSON
@@ -40,12 +41,35 @@ class _HomeState extends State<Home> {
       final Map<String, dynamic> jsonData = jsonDecode(jsonString);
       final List<dynamic> materialList = jsonData['materials'];
 
+      final prefs = await SharedPreferences.getInstance();
       final materials = <LearningMaterial>[];
+      Map<String, LevelProgress> updateLevelProgress = Map.from(
+        user.levelProgress,
+      );
       for (var materialData in materialList) {
         final materialId = materialData['id'] as String;
         final levelProgress =
             user.levelProgress[materialId] ??
             LevelProgress(levelId: materialId, currentLives: 5);
+
+        final double storedProgress =
+            prefs.getDouble('${materialId}_progress') ?? levelProgress.progress;
+        final bool storedIsCompleted =
+            prefs.getBool('${materialId}_isCompleted') ??
+            levelProgress.isCompleted;
+        final int storedCurrentLives =
+            prefs.getInt('${materialId}_currentLives') ??
+            levelProgress.currentLives;
+        final int storedSceneIndex =
+            prefs.getInt('${materialId}_lastSceneIndex') ??
+            levelProgress.currentSceneIndex;
+
+        updateLevelProgress[materialId] = levelProgress.copyWith(
+          progress: storedProgress,
+          isCompleted: storedIsCompleted,
+          currentLives: storedCurrentLives,
+          currentSceneIndex: storedSceneIndex,
+        );
 
         final material = LearningMaterial(
           id: materialId,
@@ -60,6 +84,9 @@ class _HomeState extends State<Home> {
         await material.loadFromJson(); // Muat content dari file JSON per level
         materials.add(material);
       }
+
+      user = user.copyWith(levelProgress: updateLevelProgress);
+      await _userRepo.saveUser(user);
 
       // Tentukan materi aktif berdasarkan progres pengguna
       LearningMaterial? activeMaterial;
@@ -253,7 +280,11 @@ class _HomeState extends State<Home> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: CardHome(material: activeMaterial, user: user),
+                      child: CardHome(
+                        material: activeMaterial,
+                        user: user,
+                        path: activeMaterial.assetPath,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

@@ -1,17 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/data/level_data.dart';
 import 'package:frontend/data/material_data.dart';
 import 'package:frontend/views/pages/story.dart';
 import 'package:frontend/data/user_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CardHome extends StatelessWidget {
+class CardHome extends StatefulWidget {
   final LearningMaterial material;
   final UserProfile user;
-  const CardHome({super.key, required this.material, required this.user});
+  final String path;
+  const CardHome({
+    super.key,
+    required this.material,
+    required this.user,
+    required this.path,
+  });
+
+  @override
+  State<CardHome> createState() => _CardHomeState();
+}
+
+class _CardHomeState extends State<CardHome> {
+  late double _progress;
+  late bool _isCompleted;
+  late int _lastSceneIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgressFromStorage();
+  }
+
+  Future<void> _loadProgressFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String id = widget.material.id;
+
+    setState(() {
+      _progress = prefs.getDouble('${id}_progress') ?? widget.material.progress;
+      _isCompleted =
+          prefs.getBool('${id}_isCompleted') ?? widget.material.isCompleted;
+      _lastSceneIndex = prefs.getInt('${id}_lastSceneIndex') ?? 0;
+    });
+  }
+
+  Future<void> _saveProgressToStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String id = widget.material.id;
+
+    await prefs.setDouble('${id}_progress', _progress);
+    await prefs.setBool('${id}_isCompleted', _isCompleted);
+    await prefs.setInt('${id}_lastSceneIndex', _lastSceneIndex);
+    
+
+    final UpdateUser = widget.user.copyWith(
+      levelProgress: {
+        ...widget.user.levelProgress,
+        id: (widget.user.levelProgress[id] ??
+                LevelProgress(levelId: id, currentLives: 5))
+            .copyWith(currentSceneIndex: _lastSceneIndex),
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    String path = material.assetPath;
-
     return Container(
       margin: EdgeInsets.all(0),
       child: InkWell(
@@ -29,18 +81,21 @@ class CardHome extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color:
-                      material.isCompleted
+                      widget.material.isCompleted
                           ? Colors.green.withOpacity(0.1)
                           : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  material.isCompleted ? 'SELESAI' : 'BELAJAR SEKARANG',
+                  widget.material.isCompleted ? 'SELESAI' : 'BELAJAR SEKARANG',
                   style: TextStyle(
                     fontFamily: 'Quicksand',
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: material.isCompleted ? Colors.green : Colors.orange,
+                    color:
+                        widget.material.isCompleted
+                            ? Colors.green
+                            : Colors.orange,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -50,7 +105,7 @@ class CardHome extends StatelessWidget {
 
               // Judul Materi
               Text(
-                material.title,
+                widget.material.title,
                 style: const TextStyle(
                   fontFamily: 'Quicksand',
                   fontSize: 18,
@@ -63,7 +118,7 @@ class CardHome extends StatelessWidget {
 
               // Deskripsi
               Text(
-                material.description,
+                widget.material.description,
                 style: TextStyle(
                   fontFamily: 'Quicksand',
                   fontSize: 14,
@@ -96,10 +151,10 @@ class CardHome extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         LinearProgressIndicator(
-                          value: material.progress,
+                          value: _progress/100,
                           backgroundColor: Colors.grey[200],
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            material.isCompleted
+                            widget.material.isCompleted
                                 ? Colors.green
                                 : const Color(0xFF8B5F3D),
                           ),
@@ -108,7 +163,7 @@ class CardHome extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${(material.progress * 100).toStringAsFixed(0)}% selesai',
+                          '${_progress.toStringAsFixed(0)}% selesai',
                           style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 10,
@@ -132,22 +187,35 @@ class CardHome extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        final String id = widget.material.id;
+
+                        int initialIndex = 0;
+                        if (!widget.material.isCompleted) {
+                          initialIndex =
+                              prefs.getInt('${id}_lastSceneIndex') ?? 0;
+                        } else {
+                          await prefs.setDouble('${id}_progress', 0.0);
+                          await prefs.setBool('${id}_isCompleted', false);
+                          await prefs.setInt('${id}_lastSceneIndex', 0);
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder:
                                 (context) => StoryPage(
-                
-                                  storyPath: path,
-                                  user: user,
-                                  materialTitle: material.title,
+                                  storyPath: widget.path,
+                                  user: widget.user,
+                                  materialTitle: widget.material.title,
+                                  initialScene: initialIndex,
+                                  material: widget.material,
                                 ),
                           ),
                         );
                       },
                       child: Text(
-                        material.isCompleted ? 'ULANGI' : 'MULAI',
+                        widget.material.isCompleted ? 'ULANGI' : 'MULAI',
                         style: const TextStyle(
                           fontFamily: 'Quicksand',
                           fontSize: 12,

@@ -4,7 +4,7 @@ import 'package:frontend/data/story_data.dart';
 class QuestionScene extends StatefulWidget {
   final StoryScene scene;
   final LogicQuestion question;
-  final VoidCallback onAnswerSelected;
+  final void Function(String) onAnswerSelected;
   final VoidCallback onHintPressed;
   final int remainingLives;
 
@@ -135,7 +135,7 @@ class _QuestionSceneState extends State<QuestionScene> {
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton(
-                            onPressed: widget.onAnswerSelected,
+                            onPressed: () => widget.onAnswerSelected(_selectedAnswer!),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber[700],
                               foregroundColor: Colors.white,
@@ -181,9 +181,7 @@ class _QuestionSceneState extends State<QuestionScene> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: ElevatedButton(
-        onPressed: () {
-          _showFeedback ? null : () => _selectAnswer(option);
-        },
+        onPressed: _showFeedback ? null : () => _selectAnswer(option),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: Colors.white,
@@ -201,5 +199,4 @@ class _QuestionSceneState extends State<QuestionScene> {
       _showFeedback = true;
     });
   }
-
 }

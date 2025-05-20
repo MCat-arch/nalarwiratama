@@ -1,5 +1,6 @@
 // lib/views/pages/story_page.dart
 import 'package:flutter/material.dart';
+import 'package:frontend/data/material_data.dart';
 import 'package:frontend/data/story_data.dart';
 import 'package:frontend/data/user_data.dart';
 import 'package:frontend/services/story_service.dart';
@@ -9,8 +10,17 @@ class StoryPage extends StatelessWidget {
   final String storyPath;
   final UserProfile user;
   final String materialTitle;
+  final int initialScene;
+  final LearningMaterial material;
 
-  const StoryPage({super.key, required this.storyPath, required this.user, required this.materialTitle});
+  const StoryPage({
+    super.key,
+    required this.storyPath,
+    required this.user,
+    required this.materialTitle,
+    this.initialScene = 0,
+    required this.material,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +54,8 @@ class StoryPage extends StatelessWidget {
             user: user,
             onCompleted: onCompleted,
             onHomePressed: () => Navigator.pop(context),
+            material:  material,//
+            initialSceneIndex: initialScene,
           );
         },
       ),
