@@ -107,8 +107,6 @@ class UserProfile {
     return copyWith(levels: updateLevels);
   }
 
-  
-
   LevelProgress getLevelProgress(String levelId) {
     return levelProgress[levelId] ??
         LevelProgress(levelId: levelId, currentLives: 5);
@@ -120,27 +118,24 @@ class UserProfile {
       return UserProfile(
         userId: (map['userId'] as String?) ?? '',
         name: (map['name'] as String?) ?? '',
-        email: (map['email'] as String?) ?? '', // Explicit casting
+        email: (map['email'] as String?) ?? '',
         password: map['password'] as String?,
         avatarUrl: map['avatarUrl'] as String?,
         completedMaterials: (map['completedMaterials'] as int?) ?? 0,
         totalScore: (map['totalScore'] as int?) ?? 0,
         rank: map['rank'] as int?,
         joinDate: DateTime.parse(map['joinDate']),
-        achievements: List<String>.from(map['achievements'] ?? []),
+        achievements: List<String>.from(map['achievements'] as List? ?? []),
         levelProgress:
             (map['levelProgress'] as Map<String, dynamic>?)?.map(
               (key, value) => MapEntry(key, LevelProgress.fromMap(value)),
             ) ??
             {},
-        levels:
-            (map['levels'] as List?)
-                ?.map((levelMap) => GameLevel.fromMap(levelMap))
-                .toList() ??
-            [],
+        activeMaterialId:
+            map['activeMaterialId'] as String?, // Pastikan ini diambil
       );
     } catch (e) {
-      print('Error in fromMap: $e'); // Log the error
+      print('Error in fromMap: $e');
       return UserProfile(
         userId: '',
         name: '',
@@ -153,6 +148,7 @@ class UserProfile {
         joinDate: DateTime.now(),
         achievements: [],
         levelProgress: {},
+        activeMaterialId: null,
       );
     }
   }

@@ -3,6 +3,7 @@ import 'package:frontend/services/user_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/data/user_data.dart';
 import 'package:frontend/views/pages/auth_page/login_page.dart';
+import 'package:frontend/views/pages/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -22,51 +23,80 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserProfile?>(
-      future: _getUser(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+    return SafeArea(
+      bottom: true,
+      child: FutureBuilder<UserProfile?>(
+        future: _getUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Profil Saya')),
+              body: const Center(child: Text('Gagal memuat profil pengguna')),
+            );
+          }
+
+          final user = snapshot.data!;
+          final completedMaterials =
+              user.levelProgress.values.where((lp) => lp.isCompleted).length;
+          final averageScore = _calculateAverageScore(user);
+
           return Scaffold(
-            appBar: AppBar(title: const Text('Profil Saya')),
-            body: const Center(child: Text('Gagal memuat profil pengguna')),
-          );
-        }
-
-        final user = snapshot.data!;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profil Saya'),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  // Navigasi ke halaman edit profil
-                },
-              ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildProfileHeader(user),
-                const SizedBox(height: 24),
-                _buildStatisticsSection(user),
-                const SizedBox(height: 24),
-                _buildSettingsSection(context),
+            appBar: AppBar(
+              title: const Text('Profil Saya'),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(user: user),
+                      ),
+                    ).then((_) {
+                      setState(() {});
+                    });
+                  },
+                ),
               ],
             ),
-          ),
-        );
-      },
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  _buildProfileHeader(user),
+                  const SizedBox(height: 24),
+                  _buildStatisticsSection(
+                    user,
+                    completedMaterials,
+                    averageScore,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSettingsSection(context),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  double _calculateAverageScore(UserProfile user) {
+    final completedLevels =
+        user.levelProgress.values.where((lp) => lp.isCompleted).toList();
+    if (completedLevels.isEmpty) return 0.0;
+
+    final totalScore = completedLevels.fold<int>(
+      0,
+      (sum, lp) => sum + (lp.score ?? 0),
+    );
+    return (totalScore / completedLevels.length).toDouble();
   }
 
   Widget _buildProfileHeader(UserProfile user) {
@@ -82,9 +112,14 @@ class _ProfilePageState extends State<ProfilePage> {
           child: CircleAvatar(
             radius: 56,
             backgroundImage:
-                user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                    ? (user.avatarUrl!.startsWith('http')
+                            ? NetworkImage(user.avatarUrl!)
+                            : AssetImage(user.avatarUrl!))
+                        as ImageProvider
+                    : null,
             child:
-                user.avatarUrl == null
+                user.avatarUrl == null || user.avatarUrl!.isEmpty
                     ? const Icon(Icons.person, size: 60)
                     : null,
           ),
@@ -112,9 +147,13 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildStatisticsSection(UserProfile user) {
+  Widget _buildStatisticsSection(
+    UserProfile user,
+    int completedMaterials,
+    double averageScore,
+  ) {
     return Card(
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -131,21 +170,52 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 _buildStatItem(
                   icon: Icons.library_books,
-                  value: user.completedMaterials.toString(),
+                  value: completedMaterials.toString(),
                   label: 'Materi Selesai',
+                  color: Colors.blue,
                 ),
                 _buildStatItem(
                   icon: Icons.star,
-                  value: user.totalScore.toString(),
-                  label: 'Total Skor',
+                  value: averageScore.toStringAsFixed(
+                    1,
+                  ), // Rata-rata skor dengan 1 desimal
+                  label: 'Rata-rata Skor',
+                  color: Colors.amber,
                 ),
                 _buildStatItem(
-                  icon: Icons.leaderboard,
-                  value: user.rank != null ? '#${user.rank}' : 'N/A',
-                  label: 'Peringkat',
+                  icon: Icons.badge,
+                  value: user.achievements.length.toString(),
+                  label: 'Badges',
+                  color: Colors.green,
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            const Text(
+              'Pencapaian Terbaru',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            user.achievements.isNotEmpty
+                ? Column(
+                  children:
+                      user.achievements.take(3).map((achievement) {
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.emoji_events,
+                            color: Colors.orange,
+                          ),
+                          title: Text(achievement),
+                          dense: true,
+                        );
+                      }).toList(),
+                )
+                : const Text(
+                  'Belum ada pencapaian.',
+                  style: TextStyle(color: Colors.grey),
+                ),
           ],
         ),
       ),
@@ -156,10 +226,18 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     required String value,
     required String label,
+    required Color color,
   }) {
     return Column(
       children: [
-        Icon(icon, size: 32, color: Colors.blue),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.1),
+          ),
+          child: Icon(icon, size: 32, color: color),
+        ),
         const SizedBox(height: 8),
         Text(
           value,

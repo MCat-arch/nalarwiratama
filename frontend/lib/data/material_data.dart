@@ -97,6 +97,11 @@ class LearningMaterial {
 
   Future<void> loadFromJson() async {
     try {
+      if (assetPath == null || assetPath.isEmpty) {
+        print('Error: assetPath is null or empty for material $id');
+        content = 'Gagal memuat materi';
+        return;
+      }
       print('Loading JSON from: $assetPath'); // Debugging log
       final String jsonString = await rootBundle.loadString(assetPath);
       print('Loaded JSON string: $jsonString'); // Debugging log

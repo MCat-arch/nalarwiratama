@@ -181,7 +181,7 @@ class LevelProgress {
 
   double _calculateProgress() {
     
-    final totalScenes = 10;
+    final totalScenes = gameLevel?.scenes.length ?? 1;
     if (totalScenes > 0) {
       return (currentSceneIndex / totalScenes) * 100;
     }

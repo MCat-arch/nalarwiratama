@@ -34,7 +34,9 @@ class _KitabState extends State<Kitab> {
       if (user == null) throw Exception('User not found');
 
       // Muat daftar materi dari JSON
-      final String jsonString = await rootBundle.loadString('/material/materials.json');
+      final String jsonString = await rootBundle.loadString(
+        '/material/materials.json',
+      );
       final Map<String, dynamic> jsonData = jsonDecode(jsonString);
       final List<dynamic> materialList = jsonData['materials'];
 
@@ -42,7 +44,8 @@ class _KitabState extends State<Kitab> {
       for (var materialData in materialList) {
         final materialId = materialData['id'] as String;
         // Ambil data dinamis dari UserProfile
-        final levelProgress = user.levelProgress[materialId] ??
+        final levelProgress =
+            user.levelProgress[materialId] ??
             LevelProgress(levelId: materialId, currentLives: 5);
 
         final material = LearningMaterial(
@@ -59,10 +62,7 @@ class _KitabState extends State<Kitab> {
         materials.add(material);
       }
 
-      return {
-        'materials': materials,
-        'user': user,
-      };
+      return {'materials': materials, 'user': user};
     } catch (e) {
       print('Error loading materials and user: $e');
       return {'materials': [], 'user': null};
@@ -89,32 +89,38 @@ class _KitabState extends State<Kitab> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError || snapshot.data == null || snapshot.data!['materials'].isEmpty) {
+          if (snapshot.hasError ||
+              snapshot.data == null ||
+              snapshot.data!['materials'].isEmpty) {
             return const Center(child: Text('Gagal memuat materi'));
           }
 
-          final materials = snapshot.data!['materials'] as List<LearningMaterial>;
+          final materials =
+              snapshot.data!['materials'] as List<LearningMaterial>;
           final user = snapshot.data!['user'] as UserProfile?;
 
-          return ListView.builder(
-            itemCount: materials.length,
-            itemBuilder: (context, index) {
-              final material = materials[index];
-              return CardKitab(
-                material: material,
-                onTap: () async {
-                  if (material.content == null) {
-                    await material.loadFromJson();
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => KitabDetail(material: material),
-                    ),
-                  );
-                },
-              );
-            },
+          return SafeArea(
+            bottom: true,
+            child: ListView.builder(
+              itemCount: materials.length,
+              itemBuilder: (context, index) {
+                final material = materials[index];
+                return CardKitab(
+                  material: material,
+                  onTap: () async {
+                    if (material.content == null) {
+                      await material.loadFromJson();
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => KitabDetail(material: material),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           );
         },
       ),

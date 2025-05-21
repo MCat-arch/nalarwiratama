@@ -18,7 +18,6 @@ class _CardKitabState extends State<CardKitab> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadData();
   }

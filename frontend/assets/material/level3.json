@@ -1,23 +1,23 @@
 {
-  "content": "Ini adalah teks panjang untuk materi logika matematika. Anda akan mempelajari konsep dasar seperti pernyataan, negasi, dan implikasi dalam logika.",
-  "isCompleted": true,
-  "score": "",
-  "progress":"",
+  "content": "333Ini adalah teks panjang untuk materi logika matematika. Anda akan mempelajari konsep dasar seperti pernyataan, negasi, dan implikasi dalam logika.",
+  "isCompleted": false,
+  "score": null,
+  "progress":0.0,
   "scenes": [
     {
-      "sceneId": "scene1",
+      "sceneId": "scene8",
       "title": "Pengenalan Logika",
-      "content": "Logika adalah ilmu tentang penalaran yang benar...",
+      "content": "33Logika adalah ilmu tentang penalaran yang benar...",
       "type": "narrative",
-      "imageAsset": "assets/images/scene1_bg.jpg",
-      "nextSceneId": "scene2"
+      "imageAsset": "assets/images/img_dip.jpg.jpg",
+      "nextSceneId": "scene9"
     },
     {
-      "sceneId": "scene2",
+      "sceneId": "scene9",
       "title": "Pertanyaan Dasar",
       "content": "Apa itu pernyataan logika?",
       "type": "question",
-      "nextSceneId": "scene3",
+      "nextSceneId": "scene10",
       "question": {
         "questionText": "Apa itu pernyataan logika?",
         "options": ["Kalimat yang selalu benar", "Kalimat yang bisa benar atau salah", "Kalimat yang selalu salah"],
@@ -29,7 +29,7 @@
       "title": "Kesimpulan",
       "content": "Pernyataan logika adalah dasar dari logika matematika...",
       "type": "narrative",
-      "imageAsset": "assets/images/scene3_bg.jpg",
+      "imageAsset": "assets/images/img_dip.jpg.jpg",
       "nextSceneId": "end"
     }
   ]

@@ -90,11 +90,11 @@ import 'package:frontend/data/material_data.dart';
 
 class StoryData {
   final String content;
-  final bool isCompleted;
-  final String? score;
-  final String? progress;
+  final bool? isCompleted;
+  final int? score;
+  final double? progress;
   final LearningMaterial? material;
-  final LevelProgress? level;
+  final dynamic level;
   final List<StoryScene> scenes;
 
   StoryData({
@@ -120,17 +120,32 @@ class StoryData {
 
   // Create object from Map
   factory StoryData.fromMap(Map<String, dynamic> map) {
+    print('Parsing StoryData from map: $map'); // Debugging
     return StoryData(
-      content: map['content'],
-      isCompleted: map['isCompleted'],
-      score: map['score'],
-      material: map['material'],
+      content: map['content'] as String? ?? '',
+      isCompleted: map['isCompleted'] as bool? ?? false,
+      score:
+          (map['score'] is String && map['score'].isEmpty)
+              ? null
+              : (map['score'] as int?),
+      progress:
+          (map['progress'] is String && map['progress'].isEmpty)
+              ? 0.0
+              : (map['progress'] as num?)?.toDouble(),
+      material:
+          map['material'] != null
+              ? LearningMaterial.fromMap(
+                map['material'] as Map<String, dynamic>,
+              )
+              : null,
       level: map['level'],
-      progress: map['progress'],
       scenes:
-          (map['scenes'] as List)
-              .map((scene) => StoryScene.fromMap(scene))
-              .toList(),
+          (map['scenes'] as List<dynamic>?)
+              ?.map(
+                (scene) => StoryScene.fromMap(scene as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
     );
   }
 
@@ -174,15 +189,15 @@ class StoryScene {
   // Create object from Map
   factory StoryScene.fromMap(Map<String, dynamic> map) {
     return StoryScene(
-      sceneId: map['sceneId'],
-      title: map['title'],
-      content: map['content'],
-      type: _parseSceneType(map['type']),
-      imageAsset: map['imageAsset'],
-      nextSceneId: map['nextSceneId'],
+      sceneId: map['sceneId'] as String? ?? '',
+      title: map['title'] as String? ?? 'Judul tidak tersedia',
+      content: map['content'] as String? ?? 'Konten tidak tersedia',
+      type: _parseSceneType(map['type'] as String? ?? 'narrative'),
+      imageAsset: map['imageAsset'] as String?,
+      nextSceneId: map['nextSceneId'] as String? ?? '',
       question:
           map['question'] != null
-              ? LogicQuestion.fromMap(map['question'])
+              ? LogicQuestion.fromMap(map['question'] as Map<String, dynamic>)
               : null,
     );
   }

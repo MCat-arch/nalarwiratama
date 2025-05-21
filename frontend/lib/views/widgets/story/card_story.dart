@@ -40,6 +40,7 @@ class _StoryCardState extends State<StoryCard> {
   bool _showFeedback = false;
   final UserRepository _userRepo = UserRepository();
   late LevelProgress levelProgress;
+  late StoryData _storyData;
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _StoryCardState extends State<StoryCard> {
         widget.user.levelProgress[widget.material.id] ??
         LevelProgress(levelId: widget.material.id, currentLives: 5);
     _remainingLives = levelProgress.currentLives;
+    _storyData = widget.storyData;
     _loadProgressFromStorage();
   }
 
@@ -57,7 +59,7 @@ class _StoryCardState extends State<StoryCard> {
     final String id = widget.material.id;
     final updatedMaterial = widget.material.updateProgress(
       levelProgress,
-      widget.storyData.scenes,
+      _storyData.scenes,
     );
 
     await prefs.setDouble('${id}_progress', updatedMaterial.progress);
@@ -70,6 +72,10 @@ class _StoryCardState extends State<StoryCard> {
     }
 
     // Sinkronisasi dengan UserProfile
+    final nextLevelId =
+        updatedMaterial.isCompleted
+            ? (int.tryParse(id) != null ? (int.parse(id) + 1).toString() : id)
+            : id;
     final updatedUser = widget.user.copyWith(
       levelProgress: {
         ...widget.user.levelProgress,
@@ -77,10 +83,11 @@ class _StoryCardState extends State<StoryCard> {
           currentSceneIndex: _currentSceneIndex,
           currentLives: _remainingLives,
           progress: updatedMaterial.progress,
-          isCompleted:  updatedMaterial.isCompleted,
-          score: updatedMaterial.isCompleted ? (_remainingLives * 20) : null
+          isCompleted: updatedMaterial.isCompleted,
+          score: updatedMaterial.isCompleted ? (_remainingLives * 20) : null,
         ),
       },
+      activeMaterialId: nextLevelId,
     );
     await _userRepo.saveUser(updatedUser);
     print(
@@ -93,14 +100,18 @@ class _StoryCardState extends State<StoryCard> {
     final String id = widget.material.id;
 
     setState(() {
-      widget.material.progress = prefs.getDouble('${id}_progress') ?? 0.0;
-      widget.material.isCompleted = prefs.getBool('${id}_isCompleted') ?? false;
+      final storedProgress = prefs.getDouble('${id}_progress') ?? 0.0;
+      final storedisCompleted = prefs.getBool('${id}_isCompleted') ?? false;
       _currentSceneIndex = prefs.getInt('${id}_lastSceneIndex') ?? 0;
       _remainingLives = prefs.getInt('${id}_currentLives') ?? 5;
       levelProgress = levelProgress.copyWith(
         currentSceneIndex: _currentSceneIndex,
         currentLives: _remainingLives,
+        progress: storedProgress,
+        isCompleted: storedisCompleted,
       );
+      widget.material.progress = storedProgress; // Sinkronisasi dengan material
+      widget.material.isCompleted = storedisCompleted;
     });
     print(
       'Progress loaded: progress=${widget.material.progress}, isCompleted=${widget.material.isCompleted}, sceneIndex=$_currentSceneIndex',
@@ -108,11 +119,11 @@ class _StoryCardState extends State<StoryCard> {
   }
 
   void _goToNextScene() {
-    if (_currentSceneIndex < widget.storyData.scenes.length - 1) {
+    if (_currentSceneIndex < _storyData.scenes.length - 1) {
       setState(() {
         _currentSceneIndex++;
-        _selectedAnswer = null;
-        _showFeedback = false;
+        // _selectedAnswer = null;
+        // _showFeedback = false;
         levelProgress = levelProgress.copyWith(
           currentSceneIndex: _currentSceneIndex,
         );
@@ -120,11 +131,12 @@ class _StoryCardState extends State<StoryCard> {
       _saveProgressToStorage();
     } else {
       setState(() {
+        levelProgress = levelProgress.complete();
         widget.material.isCompleted = true;
         widget.material.progress = 100.0;
       });
       _saveProgressToStorage();
-      widget.onCompleted();
+      if (widget.onCompleted != null) widget.onCompleted!();
     }
   }
 
@@ -143,14 +155,16 @@ class _StoryCardState extends State<StoryCard> {
         _currentSceneIndex++;
         final updatedMaterial = widget.material.updateProgress(
           levelProgress,
-          widget.storyData.scenes,
+          _storyData.scenes,
         );
-        widget.material.progress = updatedMaterial.progress;
+        // widget.material.progress = updatedMaterial.progress;
         levelProgress = levelProgress.copyWith(
           currentSceneIndex: _currentSceneIndex,
+          progress: updatedMaterial.progress,
         );
         _saveProgressToStorage();
       } else {
+        levelProgress = levelProgress.complete();
         widget.material.isCompleted = true;
         widget.material.progress = 100.0;
         _saveProgressToStorage();
@@ -183,6 +197,7 @@ class _StoryCardState extends State<StoryCard> {
   @override
   Widget build(BuildContext context) {
     final currentScene = widget.storyData.scenes[_currentSceneIndex];
+    //  final NarrativeScene narrative = (NarrativeLayoutType.values.toList()..shuffle()).first;
 
     return Scaffold(
       extendBodyBehindAppBar: true,

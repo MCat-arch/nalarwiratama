@@ -34,127 +34,158 @@ class _QuestionSceneState extends State<QuestionScene> {
           Positioned.fill(
             child: Image.asset(widget.scene.imageAsset!, fit: BoxFit.cover),
           ),
-        Positioned.fill(child: Container(color: Colors.black.withOpacity(0.4))),
+        // Dark overlay for readability
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.3),
+                  Colors.black.withOpacity(0.7),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          bottom: true,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
 
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.scene.title,
-                      style: const TextStyle(
-                        color: Colors.amber,
-                        fontFamily: 'Quicksand',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      Text(
+                        widget.scene.title,
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontFamily: 'Quicksand',
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      widget.scene.content,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Quicksand',
-                        fontSize: 16,
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.scene.content,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Quicksand',
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.question.questionText,
-                            style: TextStyle(
-                              color: Colors.white12,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Quicksand',
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ...widget.question.options.map(
-                            (option) => _buildOptionButton(option),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (_showFeedback)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color:
-                                _selectedAnswer == widget.question.correctAnswer
-                                    ? Colors.lightGreen.withOpacity(0.8)
-                                    : Colors.redAccent.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                _selectedAnswer == widget.question.correctAnswer
-                                    ? Icons.check_circle
-                                    : Icons.error,
-                                color: Colors.white,
+                      SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.question.questionText,
+                              style: TextStyle(
+                                color: Colors.white12,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Quicksand',
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
+                            ),
+                            const SizedBox(height: 12),
+                            ...widget.question.options.map(
+                              (option) => _buildOptionButton(option),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_showFeedback)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color:
                                   _selectedAnswer ==
                                           widget.question.correctAnswer
-                                      ? 'Jawaban Anda benar!'
-                                      : 'Jawaban salah. Yang benar: ${widget.question.correctAnswer}',
-                                  style: const TextStyle(color: Colors.white),
+                                      ? Colors.lightGreen.withOpacity(0.8)
+                                      : Colors.redAccent.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _selectedAnswer ==
+                                          widget.question.correctAnswer
+                                      ? Icons.check_circle
+                                      : Icons.error,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _selectedAnswer ==
+                                            widget.question.correctAnswer
+                                        ? 'Jawaban Anda benar!'
+                                        : 'Jawaban salah. Yang benar: ${widget.question.correctAnswer}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (_showFeedback)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed:
+                                  () =>
+                                      widget.onAnswerSelected(_selectedAnswer!),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber[700],
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    if (_showFeedback)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            onPressed: () => widget.onAnswerSelected(_selectedAnswer!),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber[700],
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
+                              child: const Text('Lanjutkan'),
                             ),
-                            child: const Text('Lanjutkan'),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
