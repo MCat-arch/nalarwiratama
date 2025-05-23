@@ -23,6 +23,8 @@ flutter:
   assets:
     -  assets/images/
     -  assets/material/
+    - assets/material/level2.json
+    - assets/material/level3.json
     # - assets/icons/
     - assets/fonts/
 

@@ -242,8 +242,6 @@
 //   }
 // }
 
-
-
 import 'package:flutter/material.dart';
 import 'package:frontend/data/level_data.dart';
 import 'package:frontend/data/material_data.dart';
@@ -296,7 +294,6 @@ class _CardHomeState extends State<CardHome> {
     await prefs.setDouble('${id}_progress', _progress);
     await prefs.setBool('${id}_isCompleted', _isCompleted);
     await prefs.setInt('${id}_lastSceneIndex', _lastSceneIndex);
-    
 
     final UpdateUser = widget.user.copyWith(
       levelProgress: {
@@ -397,7 +394,7 @@ class _CardHomeState extends State<CardHome> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         LinearProgressIndicator(
-                          value: _progress/100,
+                          value: _progress / 100,
                           backgroundColor: Colors.grey[200],
                           valueColor: AlwaysStoppedAnimation<Color>(
                             widget.material.isCompleted
@@ -451,7 +448,7 @@ class _CardHomeState extends State<CardHome> {
                           MaterialPageRoute(
                             builder:
                                 (context) => StoryPage(
-                                  storyPath: widget.path,
+                                  storyPath: widget.material.assetPath,
                                   user: widget.user,
                                   materialTitle: widget.material.title,
                                   initialScene: initialIndex,
@@ -461,7 +458,7 @@ class _CardHomeState extends State<CardHome> {
                         );
                       },
                       child: Text(
-                        widget.material.isCompleted ? 'ULANGI' : 'MULAI',
+                        'MULAI',
                         style: const TextStyle(
                           fontFamily: 'Quicksand',
                           fontSize: 12,

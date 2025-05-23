@@ -91,7 +91,7 @@ import 'package:frontend/data/material_data.dart';
 class StoryData {
   final String content;
   final bool? isCompleted;
-  final int? score;
+  final double? score;
   final double? progress;
   final LearningMaterial? material;
   final dynamic level;
@@ -127,7 +127,7 @@ class StoryData {
       score:
           (map['score'] is String && map['score'].isEmpty)
               ? null
-              : (map['score'] as int?),
+              : (map['score'] as double?),
       progress:
           (map['progress'] is String && map['progress'].isEmpty)
               ? 0.0

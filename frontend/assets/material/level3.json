@@ -7,9 +7,9 @@
     {
       "sceneId": "scene8",
       "title": "Pengenalan Logika",
-      "content": "33Logika adalah ilmu tentang penalaran yang benar...",
+      "content": "33Logika adalah",
       "type": "narrative",
-      "imageAsset": "assets/images/img_dip.jpg.jpg",
+      "imageAsset": "assets/images/img_dip.jpg",
       "nextSceneId": "scene9"
     },
     {
@@ -25,11 +25,11 @@
       }
     },
     {
-      "sceneId": "scene3",
+      "sceneId": "scene10",
       "title": "Kesimpulan",
       "content": "Pernyataan logika adalah dasar dari logika matematika...",
       "type": "narrative",
-      "imageAsset": "assets/images/img_dip.jpg.jpg",
+      "imageAsset": "assets/images/img_dip.jpg",
       "nextSceneId": "end"
     }
   ]
