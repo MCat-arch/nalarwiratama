@@ -25,6 +25,7 @@ class StoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: FutureBuilder<StoryData>(
         future: StoryService().loadStoryData(storyPath),
         builder: (context, snapshot) {

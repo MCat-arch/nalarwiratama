@@ -1,7 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/data/user_data.dart';
+import 'package:frontend/data/audio_provider.dart';
+import 'package:provider/provider.dart';
 
-class StoryAppBar extends StatelessWidget implements PreferredSizeWidget {
+class StoryAppBar extends StatefulWidget implements PreferredSizeWidget {
   final UserProfile user;
   final String materialTitle;
   final int totalMaterials;
@@ -22,12 +25,35 @@ class StoryAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
+  State<StoryAppBar> createState() => _StoryAppBarState();
+  
+  @override
   Size get preferredSize => const Size.fromHeight(80);
+}
+
+class _StoryAppBarState extends State<StoryAppBar> {
+  // @override
+  // Size get preferredSize => const Size.fromHeight(80);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+    audioProvider.playAudio();
+  }
+
+  @override
+  void dispose() {
+    final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+    audioProvider.pauseAudio();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final completedMaterials =
-        user.levelProgress.values.where((p) => p.isCompleted).length;
+        widget.user.levelProgress.values.where((p) => p.isCompleted).length;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -41,40 +67,23 @@ class StoryAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       leading: IconButton(
-        onPressed: onHomePressed,
+        onPressed: widget.onHomePressed,
         icon: const Icon(Icons.home_rounded, color: Colors.amber, size: 28),
       ),
       title: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          //   decoration: BoxDecoration(
-          //     color: Colors.black.withOpacity(0.5),
-          //     borderRadius: BorderRadius.circular(20),
-          //     border: Border.all(
-          //       color: Colors.amber.withOpacity(0.5),
-          //       width: 1,
-          //     ),
-          //   ),
-          //   child: Text(
-          //     materialTitle,
-          //     style: const TextStyle(
-          //       color: Colors.white,
-          //       fontSize: 14,
-          //       fontWeight: FontWeight.w600,
-          //       fontFamily: 'Quicksand',
-          //     ),
-          //   ),
-          // ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             //berada di center
             children: [
-              _buildProgressIndicator(completedMaterials, totalMaterials),
+              _buildProgressIndicator(
+                completedMaterials,
+                widget.totalMaterials,
+              ),
               const SizedBox(width: 16),
-              _buildLivesIndicator(currentLives, maxLives),
+              _buildLivesIndicator(widget.currentLives, widget.maxLives),
             ],
           ),
 
@@ -83,15 +92,28 @@ class StoryAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       actions: [
-        if (onHintPressed != null)
+        if (widget.onHintPressed != null)
           IconButton(
-            onPressed: onHintPressed,
+            onPressed: widget.onHintPressed,
             icon: Icon(
               Icons.lightbulb_circle_rounded,
               color: Colors.amber,
               size: 28,
             ),
           ),
+        Consumer<AudioProvider>(
+          builder: (context, audioProvider, child) {
+            return IconButton(
+              icon: Icon(
+                audioProvider.isMuted ? Icons.volume_off : Icons.volume_up,
+              ),
+              color: Colors.amber,
+              onPressed: () {
+                audioProvider.toggleMute();
+              },
+            );
+          },
+        ),
       ],
     );
   }

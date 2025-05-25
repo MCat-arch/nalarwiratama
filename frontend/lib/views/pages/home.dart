@@ -196,6 +196,7 @@ class _HomeState extends State<Home> {
     return SafeArea(
       bottom: true,
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: FutureBuilder<Map<String, dynamic>>(
           future: _dataFuture,
           builder: (context, snapshot) {

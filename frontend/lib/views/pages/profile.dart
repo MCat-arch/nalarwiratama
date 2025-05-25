@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/user_repository.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 import 'package:frontend/data/user_data.dart';
 import 'package:frontend/views/pages/auth_page/login_page.dart';
 import 'package:frontend/views/pages/edit_profile_page.dart';
@@ -115,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                     ? (user.avatarUrl!.startsWith('http')
                             ? NetworkImage(user.avatarUrl!)
-                            : AssetImage(user.avatarUrl!))
+                            : FileImage(File(user.avatarUrl!)))
                         as ImageProvider
                     : null,
             child:
