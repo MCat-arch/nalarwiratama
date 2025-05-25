@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'chat_dialog.dart';
+import 'api_service.dart';
 
 class CardHomeAi extends StatefulWidget {
   const CardHomeAi({super.key});
@@ -12,21 +13,48 @@ class CardHomeAi extends StatefulWidget {
 class _CardHomeAiState extends State<CardHomeAi> {
   final TextEditingController _textController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
+  final ApiService _apiService = ApiService();
+  bool _isloading = false;
 
-  void _sendMessage(String userInput) {
+  void _sendMessage(String userInput) async {
     // final userInput = _textController.text.trim();
     if (userInput.trim().isNotEmpty) {
       setState(() {
+        _isloading = true;
         _messages.add({
           'text': userInput.trim(),
           'isUser': true,
           'time': DateTime.now(),
         });
       });
+
+      try {
+        final aiResponse = await _apiService.sendMessage(userInput.trim());
+        setState(() {
+          _messages.add({
+            'text': aiResponse,
+            'isUser': false,
+            'time': DateTime.now(),
+          });
+          _isloading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _isloading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
       // Simulate sending the message to the AI assistant
-      print('User: $userInput');
-      _textController.clear();
-      FocusScope.of(context).unfocus();
+    //   print('User: $userInput');
+    //   _textController.clear();
+    //   FocusScope.of(context).unfocus();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -35,7 +63,7 @@ class _CardHomeAiState extends State<CardHomeAi> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
-    }
+     }
   }
 
   void _showChatDialog() {

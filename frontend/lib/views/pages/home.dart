@@ -1,8 +1,4 @@
-// import 'dart:convert';
-// import 'package:flutter/material.dart';
-// import 'package:frontend/data/material_data.dart';
-// import 'package:frontend/services/user_repository.dart';
-// import 'package:frontend/data/user_data.dart';
+
 import 'package:frontend/views/widgets/card_home_ai.dart';
 // import 'package:frontend/views/widgets/card_home.dart';
 // import 'package:flutter/services.dart' show rootBundle;

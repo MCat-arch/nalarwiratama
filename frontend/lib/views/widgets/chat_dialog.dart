@@ -17,12 +17,19 @@ class ChatDialog extends StatefulWidget {
 class _ChatDialogState extends State<ChatDialog> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  bool _isloading = false;
 
-  void _sendMessage() {
+  void _sendMessage() async {
     final userInput = _textController.text.trim();
     if (userInput.isNotEmpty) {
-      widget.onSendMessage(userInput);
+      setState(() {
+        _isloading = true;
+      });
+      await widget.onSendMessage(userInput);
       _textController.clear();
+      setState(() {
+        _isloading = false;
+      });
       // Scroll ke pesan terbaru
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
@@ -97,7 +104,8 @@ class _ChatDialogState extends State<ChatDialog> {
                 reverse: true,
                 itemCount: widget.messages.length,
                 itemBuilder: (context, index) {
-                  final message = widget.messages[widget.messages.length - 1 - index];
+                  final message =
+                      widget.messages[widget.messages.length - 1 - index];
                   return _buildChatBubble(
                     context: context,
                     text: message['text'],
@@ -189,8 +197,10 @@ class _ChatDialogState extends State<ChatDialog> {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
-            bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
+            bottomLeft:
+                isUser ? const Radius.circular(16) : const Radius.circular(4),
+            bottomRight:
+                isUser ? const Radius.circular(4) : const Radius.circular(16),
           ),
           boxShadow: [
             BoxShadow(
@@ -204,7 +214,8 @@ class _ChatDialogState extends State<ChatDialog> {
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
         child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
               text,
