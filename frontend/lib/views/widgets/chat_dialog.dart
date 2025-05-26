@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/provider/chat_provider.dart';
 
 class ChatDialog extends StatefulWidget {
-  final List<Map<String, dynamic>> messages;
   final Function(String) onSendMessage;
 
   const ChatDialog({
     super.key,
-    required this.messages,
     required this.onSendMessage,
   });
 
@@ -17,30 +17,18 @@ class ChatDialog extends StatefulWidget {
 class _ChatDialogState extends State<ChatDialog> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isloading = false;
+  bool _isLoading = false;
 
-  void _sendMessage() async {
-    final userInput = _textController.text.trim();
-    if (userInput.isNotEmpty) {
-      setState(() {
-        _isloading = true;
-      });
-      await widget.onSendMessage(userInput);
-      _textController.clear();
-      setState(() {
-        _isloading = false;
-      });
-      // Scroll ke pesan terbaru
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
+  void _scrollToLatest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -48,6 +36,12 @@ class _ChatDialogState extends State<ChatDialog> {
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scrollToLatest(); // Gulir ke bawah saat dialog dibuka
   }
 
   @override
@@ -59,123 +53,131 @@ class _ChatDialogState extends State<ChatDialog> {
       child: Container(
         height: MediaQuery.of(context).size.height * 0.65,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            _scrollToLatest(); // Gulir setiap kali pesan baru ditambahkan
+
+            return Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFF8B5F3D).withOpacity(0.2),
-                      ),
-                      child: const Icon(
-                        Icons.chat_bubble_outline,
-                        color: Color(0xFF8B5F3D),
-                        size: 20,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF8B5F3D).withOpacity(0.2),
+                          ),
+                          child: const Icon(
+                            Icons.chat_bubble_outline,
+                            color: Color(0xFF8B5F3D),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Chat dengan AI',
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Percakapan AI',
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 24, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 24, color: Colors.grey),
-                  onPressed: () => Navigator.of(context).pop(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chatProvider.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = chatProvider.messages[index];
+                      return _buildChatBubble(
+                        context: context,
+                        text: message.text,
+                        isUser: message.isUser,
+                        time: message.time,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          style: const TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 15,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Tanyakan sesuatu...',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Quicksand',
+                              color: Colors.grey[500],
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : IconButton(
+                                onPressed: () async {
+                                  _sendMessage();
+                                },
+                                icon: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF8B5F3D),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                reverse: true,
-                itemCount: widget.messages.length,
-                itemBuilder: (context, index) {
-                  final message =
-                      widget.messages[widget.messages.length - 1 - index];
-                  return _buildChatBubble(
-                    context: context,
-                    text: message['text'],
-                    isUser: message['isUser'],
-                    time: message['time'],
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      style: const TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 15,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Tanyakan sesuatu...',
-                        hintStyle: TextStyle(
-                          fontFamily: 'Quicksand',
-                          color: Colors.grey[500],
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      onPressed: _sendMessage,
-                      icon: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF8B5F3D),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.send,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -197,10 +199,8 @@ class _ChatDialogState extends State<ChatDialog> {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft:
-                isUser ? const Radius.circular(16) : const Radius.circular(4),
-            bottomRight:
-                isUser ? const Radius.circular(4) : const Radius.circular(16),
+            bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
+            bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
           ),
           boxShadow: [
             BoxShadow(
@@ -214,8 +214,7 @@ class _ChatDialogState extends State<ChatDialog> {
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
               text,
@@ -239,5 +238,19 @@ class _ChatDialogState extends State<ChatDialog> {
         ),
       ),
     );
+  }
+
+  void _sendMessage() async {
+    final userInput = _textController.text.trim();
+    if (userInput.isNotEmpty) {
+      setState(() {
+        _isLoading = true;
+      });
+      await widget.onSendMessage(userInput);
+      _textController.clear();
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }

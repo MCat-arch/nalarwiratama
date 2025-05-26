@@ -31,6 +31,22 @@ class UserProfile {
     this.activeMaterialId,
   });
 
+  UserProfile.initial()
+      : userId = '',
+        name = '',
+        email = '',
+        password = null,
+        avatarUrl = null,
+        completedMaterials = 0,
+        totalScore = 0,
+        rank = null,
+        joinDate = DateTime.now(),
+        achievements = [],
+        levelProgress = {},
+        levels = [],
+        activeMaterialId = null;
+
+
   UserProfile copyWith({
     String? userId,
     String? name,

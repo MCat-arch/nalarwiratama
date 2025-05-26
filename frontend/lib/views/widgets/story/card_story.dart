@@ -199,42 +199,44 @@ class _StoryCardState extends State<StoryCard> {
     final currentScene = widget.storyData.scenes[_currentSceneIndex];
     //  final NarrativeScene narrative = (NarrativeLayoutType.values.toList()..shuffle()).first;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: StoryAppBar(
-        user: widget.user,
-        materialTitle: widget.materialTitle,
-        totalMaterials: 10,
-        onHomePressed: widget.onHomePressed,
-        onHintPressed: currentScene.question != null ? _showHint : null,
-        currentLives: _remainingLives,
-        maxLives: 5,
-      ),
-      body: Stack(
-        children: [
-          if (currentScene.imageAsset != null)
+    return SafeArea(
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: StoryAppBar(
+          user: widget.user,
+          materialTitle: widget.materialTitle,
+          totalMaterials: 10,
+          onHomePressed: widget.onHomePressed,
+          onHintPressed: currentScene.question != null ? _showHint : null,
+          currentLives: _remainingLives,
+          maxLives: 5,
+        ),
+        body: Stack(
+          children: [
+            if (currentScene.imageAsset != null)
+              Positioned.fill(
+                child: Image.asset(currentScene.imageAsset!, fit: BoxFit.cover),
+              ),
             Positioned.fill(
-              child: Image.asset(currentScene.imageAsset!, fit: BoxFit.cover),
+              child: Container(color: Colors.black.withOpacity(0.4)),
             ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.4)),
-          ),
-          if (currentScene.type == SceneType.narrative)
-            NarrativeScene(scene: currentScene, onNext: _goToNextScene)
-          else if (currentScene.type == SceneType.question)
-            QuestionScene(
-              scene: currentScene,
-              question: currentScene.question!,
-              onAnswerSelected: (selectedAnswer) {
-                _selectedAnswer = selectedAnswer;
-                final isCorrect =
-                    _selectedAnswer == currentScene.question!.correctAnswer;
-                _handleAnswer(isCorrect);
-              },
-              onHintPressed: _showHint,
-              remainingLives: _remainingLives,
-            ),
-        ],
+            if (currentScene.type == SceneType.narrative)
+              NarrativeScene(scene: currentScene, onNext: _goToNextScene)
+            else if (currentScene.type == SceneType.question)
+              QuestionScene(
+                scene: currentScene,
+                question: currentScene.question!,
+                onAnswerSelected: (selectedAnswer) {
+                  _selectedAnswer = selectedAnswer;
+                  final isCorrect =
+                      _selectedAnswer == currentScene.question!.correctAnswer;
+                  _handleAnswer(isCorrect);
+                },
+                onHintPressed: _showHint,
+                remainingLives: _remainingLives,
+              ),
+          ],
+        ),
       ),
     );
   }

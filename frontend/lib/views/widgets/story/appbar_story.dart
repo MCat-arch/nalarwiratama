@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/data/user_data.dart';
-import 'package:frontend/data/audio_provider.dart';
+import 'package:frontend/provider/audio_provider.dart';
 import 'package:provider/provider.dart';
 
 class StoryAppBar extends StatefulWidget implements PreferredSizeWidget {

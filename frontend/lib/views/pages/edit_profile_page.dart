@@ -8,7 +8,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:frontend/data/user_data.dart';
 import 'package:frontend/services/user_repository.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/theme_provider.dart';
+import 'package:frontend/provider/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfilePage extends StatefulWidget {
   final UserProfile user;
@@ -30,12 +31,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.initState();
     _nameController.text = widget.user.name;
     _avatarPath = widget.user.avatarUrl;
+    _loadSavedAvatar();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSavedAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _avatarPath = prefs.getString('avatarPath') ?? widget.user.avatarUrl;
+    });
+  }
+
+  Future<void> _saveAvatartoStorage(String? avatarPath) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (avatarPath != null) {
+      await prefs.setString('avatarPath', avatarPath);
+    }
   }
 
   // Fungsi untuk memilih gambar dari galeri
@@ -53,10 +69,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
+        final savedAvatar = await _saveImageToAppDir(pickedFile.path);
         setState(() {
-          _avatarPath = pickedFile.path; // Simpan path lokal
+          _avatarPath = savedAvatar; // Simpan path lokal
         });
-        _saveImageToAppDir(_avatarPath);
+        await _saveAvatartoStorage(savedAvatar);
+        // _saveImageToAppDir(_avatarPath);
         // await _cropImage(pickedFile.path);
       }
     } catch (e) {
@@ -81,6 +99,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       avatarUrl: _avatarPath,
     );
     await _userRepo.saveUser(updateUser);
+    await _saveAvatartoStorage(_avatarPath);
     Navigator.pop(context);
   }
 
